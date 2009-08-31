@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/halo"
+					   xmlns:cf="coldfusion.service.mxml.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.HTML;
+			import mx.controls.SWFLoader;
+			import flash.events.MouseEvent;
+			import coldfusion.service.events.ColdFusionServiceResultEvent;
+
+			protected function cfdocument_resultHandler(event:ColdFusionServiceResultEvent):void
+			{
+				
+				if(chFlashPaper.selected == true)
+				{
+					var swfLoader:SWFLoader = new SWFLoader();
+						swfLoader.source = event.result;
+						
+					addElement(swfLoader);
+				} else if (chPDF.selected == true)
+				{
+					var htmlControl:HTML = new HTML();
+						htmlControl.location = event.result as String;
+						htmlControl.percentWidth = 100;
+						htmlControl.percentHeight = 100;
+					
+					addElement(htmlControl);	
+				}
+				
+			}
+
+
+			protected function btnPrint_clickHandler(event:MouseEvent):void
+			{
+				cfdocument.execute();
+			}
+
+
+			protected function cfimage_resultHandler(event:ColdFusionServiceResultEvent):void
+			{
+				trace('test');
+			}
+
+
+			protected function btnCheckMail_clickHandler(event:MouseEvent):void
+			{
+				cfpop.execute();
+			}
+
+
+			protected function cfmail_resultHandler(event:ColdFusionServiceResultEvent):void
+			{
+				trace('test');
+			}
+
+
+			protected function cfpop_resultHandler(event:ColdFusionServiceResultEvent):void
+			{
+				trace('test');
+			}
+
+
+			protected function btnSend_clickHandler(event:MouseEvent):void
+			{
+				cfmail.execute();
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<cf:Config id="config" cfServer="localhost" cfPort="8500"
+				   servicePassword="-service password-" serviceUserName="-service username-" />
+		<cf:Mail id="cfmail" to="{tiTo.text}" subject="{tiSubject.text}"
+				 from="-your email-" content="{taSendMessage.text}" useTLS="false" useSSL="false"
+				 port="25" userName="-your username-" password="-your password-" server="-your mail server-"
+				 result="cfmail_resultHandler(event)"/>
+		<cf:Pop id="cfpop" action="getAll" host="-your mail host-" userName="-your username-"
+				password="-your password-" port=""
+				result="cfpop_resultHandler(event)" />
+		<cf:Document id="cfdocument" format="{chPDF.selected?'PDF':'FlashPaper'}"
+					 content="{taMessage.text}" result="cfdocument_resultHandler(event)" />
+		
+	</fx:Declarations>
+	<s:HGroup height="100%" width="100%">
+		<s:VGroup width="30%" height="100%">
+			<s:List id="lstMessages" width="100%" height="90%" />
+			<s:Button id="btnCheckMail" label="Check Mail" click="btnCheckMail_clickHandler(event)" />
+		</s:VGroup>
+		
+		<s:VGroup width="70%" height="100%">
+			<s:TextArea id="taMessage" height="50%" width="70%" />
+			<s:TextInput id="tiTo" width="250" text="To:" />
+			<s:TextInput id="tiSubject" width="250" text="Subject:" />
+			<s:TextArea id="taSendMessage" width="100%" height="40%" />
+			<s:Button id="btnSend" label="Send Message" click="btnSend_clickHandler(event)" />
+			<s:HGroup width="100%">
+				<s:Button id="btnPrint" label="Print" click="btnPrint_clickHandler(event)" />
+				<s:CheckBox id="chPDF" name="PDF" label="PDF" />
+				<s:CheckBox id="chFlashPaper" name="Flash Paper" label="Flash Paper" />	
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>
+	
+</s:WindowedApplication>
